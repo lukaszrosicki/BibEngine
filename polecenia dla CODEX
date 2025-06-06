@@ -1,0 +1,52 @@
+Polecenia dla CODEX
+
+Specyfikacja aplikacji - BibEngine
+Otwórz aplikację do zarządzania bazą bibliograficzną opartą o sprinboot i javę. 
+
+Aplikacja  ma mieć następujące funkcje: 
+I - Użytkownicy
+1. Tworzenie, edycja i usuwanie kont użytkowników. Powinna być rola użytkownika i administratora, który może zarządzać (usuwać) innymi użytkownikami.
+2. Użytkownik powinien móc zarządzać swoim kontem na osobnej stronie (zmiana hasła, zmiana maila, zmiana loginu). 
+3. Administrator powinien móc zarządzać użytkownikami (zmiana hasła, maila, loginu)
+4. Hasła powinny być szyfrowane w bcrpyt. 
+5. Wprowadź podstawową walidację - hasła dłuższe niż 6 znaków, i sprawdzaj czy mail jest mailem. 
+
+II - Tworzenie bazy bibliograicznej
+1. Dodawanie edycja i usuwanie bibliotek (list bibliograficznych).
+2. Każdy użytkownik może mieć wiele baz bibliograficznych. 
+3. Powinna być funkcja wyszukiwania wpisów pomiędzy bazami bibliograficznymi
+4. Na liście baz oprócz nazwy bazy powinna być wyświetlana lista wpisów i ewentaulny komentarz/notatka do nazwy bazy, np. "baza bibliografii do doktoratu". 
+ 
+
+III - Wpisy w bazie bibliograficznej
+1. Dodawanie edycja i usuwanie wpisów bibliograficznych. Powinna dodatkowo być możliwość pobierania wpisów po DOI i z pliku bibtex.
+2. Wpisy powinny mieć tylko te pola, które są wymagane dla stylu APA. Listę wpisów powinno dać się sortować malejąco i rosnąco po tych polach.
+3. Wpisu muszą być wyszukiwalne po tytule, nazwisku, dacie, po tytule książki/journala.
+4. Generowanie \thebibliography dla LateX w stylu APA z poprawką na język polski i z dodaną numeracją wpisów (w oryginalnym APA tego nie ma). 
+5. Generowanie pliku bibtex zawierającego tylko te pola, które są wymagane dla wybranego typu wpisu w stylu APA. \
+6. Jeśli baza zawiera wpisy, które mają puste pola obowiązkowe dla APA to na dole strony powinna wyświetlać się tabela z listą błędów i linkować do błędnych wpisów. Pola wymagane, które są puste powinny być podświetlane. 
+
+
+IV - Czyszczenie pliku bibtex
+1. Użytkownik musi mieć możliwość wgrania pliku bibtex. 
+2. Plik powinien być czyszczony z niepotrzebnych pól. 
+
+V - Strony statycznej
+1. Wygeneruj stronę główną z informacjami o aplikacji i linkami do logowania i rejestracji. 
+2. Wygeneruj stronę z regulaminem.
+3. Wygeneruj stronę z dokumentacją. 
+
+
+Wymagania projektowe:
+1. Program powinien mieć dwie solucje - serwer na localhost 5100 oraz klient na localhost 5200
+2. Klient łączy się z serwerem po API z autoryzacją JWT. 
+3. API powinno być REST. 
+4. Frontend z użyciem Thymeleaf i frameworka bootstrap 5. Część dla zalogowanych powinna mieć styl dashboardu (sidebar, menu z wyszukiwarką i info o logowaniu oraz body). 
+5. Do bloków kodu wykonujących określone zadania dodawaj komentarze w języku polskim. 
+6. Wygeneruj osobny plik z dokumentacją projektu, zawierający opis funkcjonalności, architektury, użyte technologie, opis zabezpieczeń, przykładowe zapytania do API
+7. Wygeneruj schematy bazy danych i schematy komunikacji w notacji UML w osobnym pliku. 
+8. Baza danych to powinno być H2 - nie używaj domyślnych danych. 
+9. Daj instrukcje do deployu na serwerze produkcyjnym i jak podpiąć domenę. 
+10 Obsługuj błędy (brak połączenia z serwerem, typowe błędy, strony błędów 40x). 
+11. Staraj się zachować semantykę kodu HTML i zgodność z zasadami SEO.  
+12. Pamiętaj, że aplikacja nazywa się BibEngine.
