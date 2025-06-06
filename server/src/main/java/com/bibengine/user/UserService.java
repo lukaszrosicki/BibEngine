@@ -21,7 +21,13 @@ public class UserService {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
-        user.setRole("USER");
+        user.setRole("ROLE_USER");
         return userRepository.save(user);
+    }
+
+    public boolean authenticate(String username, String password) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) return false;
+        return passwordEncoder.matches(password, user.getPassword());
     }
 }
