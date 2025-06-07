@@ -27,6 +27,14 @@ public class BibliographyService {
         return bibliographyRepository.findByOwner(user);
     }
 
+    public long countEntries(Long bibliographyId) {
+        return bibEntryRepository.countByBibliographyId(bibliographyId);
+    }
+
+    public List<BibEntry> entries(Long bibliographyId, org.springframework.data.domain.Sort sort) {
+        return bibEntryRepository.findByBibliographyId(bibliographyId, sort);
+    }
+
     @Transactional(readOnly = true)
     public Optional<Bibliography> get(Long id) {
         return bibliographyRepository.findById(id).map(b -> {

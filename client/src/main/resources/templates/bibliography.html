@@ -9,14 +9,36 @@
 <h1>Moje bibliografie</h1>
 <p><a th:href="@{/account}" class="btn btn-link">Moje konto</a></p>
 <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+<form class="row mb-3" method="get" th:action="@{/bibliography}">
+    <div class="col-auto">
+        <input class="form-control" name="q" placeholder="Szukaj" th:value="${param.q}">
+    </div>
+    <div class="col-auto">
+        <select class="form-select" name="sort">
+            <option th:selected="${param.sort=='name'}" value="name">Nazwa</option>
+            <option th:selected="${param.sort=='comment'}" value="comment">Notatka</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <select class="form-select" name="dir">
+            <option th:selected="${param.dir=='asc'}" value="asc">Rosnąco</option>
+            <option th:selected="${param.dir=='desc'}" value="desc">Malejąco</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-secondary">Filtruj</button>
+    </div>
+</form>
+
 <table class="table">
     <thead>
-    <tr><th>Nazwa</th><th>Notatka</th><th></th></tr>
+    <tr><th>Nazwa</th><th>Notatka</th><th>Ilość wpisów</th><th></th></tr>
     </thead>
     <tbody>
     <tr th:each="b : ${bibliographies}">
         <td th:text="${b.name}"></td>
         <td th:text="${b.comment}"></td>
+        <td th:text="${b.entryCount}"></td>
         <td><a th:href="@{'/bibliography/' + ${b.id}}" class="btn btn-sm btn-primary">Wpisy</a></td>
     </tr>
     </tbody>

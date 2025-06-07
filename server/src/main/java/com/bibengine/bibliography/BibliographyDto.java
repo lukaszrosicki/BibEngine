@@ -1,3 +1,3 @@
-package com.bibengine.web.dto;
+package com.bibengine.bibliography;
 
 public record BibliographyDto(Long id, String name, String comment, long entryCount) {}

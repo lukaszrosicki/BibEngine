@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Czyszczenie BibTeX - BibEngine</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+</head>
+<body class="container">
+<h1>Czyszczenie BibTeX</h1>
+<div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+<form method="post" enctype="multipart/form-data" th:action="@{/bibtex-clean}">
+    <div class="mb-3">
+        <label class="form-label">Plik BibTeX</label>
+        <input type="file" name="file" class="form-control" required>
+    </div>
+    <button class="btn btn-primary">Wyślij</button>
+</form>
+<div th:if="${bibtex}">
+    <h2>Wyczyszczony BibTeX</h2>
+    <pre th:text="${bibtex}"></pre>
+    <h2>LaTeX \thebibliography</h2>
+    <pre th:text="${latex}"></pre>
+</div>
+<p><a th:href="@{/}" class="btn btn-link">Powrót</a></p>
+</body>
+</html>

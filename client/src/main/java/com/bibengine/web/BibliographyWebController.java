@@ -38,13 +38,22 @@ public class BibliographyWebController {
 
     // Lista baz bibliograficznych
     @GetMapping
-    public String list(Model model, HttpSession session) {
+    public String list(@RequestParam(required = false) String q,
+                       @RequestParam(required = false) String sort,
+                       @RequestParam(required = false) String dir,
+                       Model model, HttpSession session) {
         if (session.getAttribute("token") == null) {
             return "redirect:/login";
         }
         try {
+            String url = "http://localhost:5100/api/bibliography";
+            List<String> params = new ArrayList<>();
+            if (q != null) params.add("q=" + q);
+            if (sort != null) params.add("sort=" + sort);
+            if (dir != null) params.add("dir=" + dir);
+            if (!params.isEmpty()) url += "?" + String.join("&", params);
             ResponseEntity<BibliographyDto[]> resp = rest.exchange(
-                    "http://localhost:5100/api/bibliography",
+                    url,
                     HttpMethod.GET,
                     authEntity(session),
                     BibliographyDto[].class
@@ -82,7 +91,11 @@ public class BibliographyWebController {
 
     // Wyświetlanie wpisów konkretnej bazy
     @GetMapping("/{id}")
-    public String entries(@PathVariable Long id, Model model, HttpSession session) {
+    public String entries(@PathVariable Long id,
+                          @RequestParam(required = false) String q,
+                          @RequestParam(required = false) String sort,
+                          @RequestParam(required = false) String dir,
+                          Model model, HttpSession session) {
         if (session.getAttribute("token") == null) {
             return "redirect:/login";
         }
@@ -98,8 +111,14 @@ public class BibliographyWebController {
                     if (b.id().equals(id)) { bibliography = b; break; }
                 }
             }
+            String url = "http://localhost:5100/api/bibliography/" + id + "/entries";
+            List<String> params = new ArrayList<>();
+            if (q != null) params.add("q=" + q);
+            if (sort != null) params.add("sort=" + sort);
+            if (dir != null) params.add("dir=" + dir);
+            if (!params.isEmpty()) url += "?" + String.join("&", params);
             ResponseEntity<BibEntryDto[]> resp = rest.exchange(
-                    "http://localhost:5100/api/bibliography/" + id + "/entries",
+                    url,
                     HttpMethod.GET,
                     authEntity(session),
                     BibEntryDto[].class);
