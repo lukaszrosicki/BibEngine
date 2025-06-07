@@ -21,18 +21,25 @@ import java.util.*;
 public class BibliographyWebController {
     private final RestTemplate rest = new RestTemplate();
 
-    private HttpEntity<?> authEntity(HttpSession session) {
+    private HttpHeaders authHeaders(HttpSession session) {
         HttpHeaders headers = new HttpHeaders();
         Object token = session.getAttribute("token");
         if (token != null) {
             headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         }
-        return new HttpEntity<>(headers);
+        return headers;
+    }
+
+    private HttpEntity<?> authEntity(HttpSession session) {
+        return new HttpEntity<>(authHeaders(session));
     }
 
     // Lista baz bibliograficznych
     @GetMapping
     public String list(Model model, HttpSession session) {
+        if (session.getAttribute("token") == null) {
+            return "redirect:/login";
+        }
         try {
             ResponseEntity<BibliographyDto[]> resp = rest.exchange(
                     "http://localhost:5100/api/bibliography",
@@ -51,25 +58,32 @@ public class BibliographyWebController {
     @PostMapping
     public String create(@RequestParam String name,
                          @RequestParam(required = false) String comment,
-                         HttpSession session) {
+                         HttpSession session,
+                         org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
+        if (session.getAttribute("token") == null) {
+            return "redirect:/login";
+        }
         Map<String, String> body = new HashMap<>();
         body.put("name", name);
         body.put("comment", comment);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + session.getAttribute("token"));
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, authHeaders(session));
         try {
             rest.exchange("http://localhost:5100/api/bibliography",
                     HttpMethod.POST,
                     entity,
                     BibliographyDto.class);
-        } catch (Exception ignored) {}
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error", "Nie udało się dodać bibliografii");
+        }
         return "redirect:/bibliography";
     }
 
     // Wyświetlanie wpisów konkretnej bazy
     @GetMapping("/{id}")
     public String entries(@PathVariable Long id, Model model, HttpSession session) {
+        if (session.getAttribute("token") == null) {
+            return "redirect:/login";
+        }
         BibliographyDto bibliography = null;
         try {
             ResponseEntity<BibliographyDto[]> respBibs = rest.exchange(
@@ -105,6 +119,9 @@ public class BibliographyWebController {
                            @RequestParam(required = false) String doi,
                            @RequestParam(required = false) String type,
                            HttpSession session) {
+        if (session.getAttribute("token") == null) {
+            return "redirect:/login";
+        }
         Map<String, Object> body = new HashMap<>();
         body.put("title", title);
         body.put("authors", authors);
@@ -112,9 +129,7 @@ public class BibliographyWebController {
         body.put("journal", journal);
         body.put("doi", doi);
         body.put("type", type);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + session.getAttribute("token"));
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, authHeaders(session));
         try {
             rest.exchange("http://localhost:5100/api/bibliography/" + id + "/entries",
                     HttpMethod.POST, entity, BibEntryDto.class);
@@ -127,6 +142,9 @@ public class BibliographyWebController {
     public String addByDoi(@PathVariable Long id,
                            @RequestParam String doi,
                            HttpSession session) {
+        if (session.getAttribute("token") == null) {
+            return "redirect:/login";
+        }
         try {
             rest.exchange(
                     "http://localhost:5100/api/bibliography/" + id + "/entries/by-doi?doi=" + doi,
