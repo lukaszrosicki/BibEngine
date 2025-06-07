@@ -15,6 +15,7 @@ public class BibEntry {
 
     private String authors;
 
+    @Column(name = "`year`")
     private Integer year;
 
     private String journal;
