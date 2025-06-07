@@ -7,6 +7,7 @@
 </head>
 <body class="container">
 <h1 th:text="${bibliography.name}">Bibliografia</h1>
+<p><a th:href="@{/account}" class="btn btn-link">Moje konto</a></p>
 <p th:text="${bibliography.comment}"></p>
 <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
 <table class="table">
