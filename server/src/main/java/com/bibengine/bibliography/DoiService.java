@@ -22,7 +22,14 @@ public class DoiService {
         if (message.get("issued") instanceof Map i && ((Map) i).get("date-parts") instanceof java.util.List list && !list.isEmpty()) {
             entry.setYear((Integer) ((java.util.List) ((java.util.List) list).get(0)).get(0));
         }
-        entry.setJournal((String) message.getOrDefault("container-title", ""));
+        Object container = message.get("container-title");
+        if (container instanceof java.util.List list && !list.isEmpty()) {
+            entry.setJournal((String) list.get(0));
+        } else if (container instanceof String str) {
+            entry.setJournal(str);
+        } else {
+            entry.setJournal("");
+        }
         entry.setDoi(doi);
         entry.setType((String) message.getOrDefault("type", "article"));
         return entry;
