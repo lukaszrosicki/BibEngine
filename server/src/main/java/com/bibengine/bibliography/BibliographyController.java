@@ -10,14 +10,12 @@ import java.util.List;
 @RequestMapping("/api/bibliography")
 public class BibliographyController {
     private final BibliographyService service;
-    private final DoiService doiService;
     private final BibTexService bibTexService;
     private final LaTeXService laTeXService;
 
-    public BibliographyController(BibliographyService service, DoiService doiService,
+    public BibliographyController(BibliographyService service,
                                  BibTexService bibTexService, LaTeXService laTeXService) {
         this.service = service;
-        this.doiService = doiService;
         this.bibTexService = bibTexService;
         this.laTeXService = laTeXService;
     }
@@ -45,12 +43,6 @@ public class BibliographyController {
         return service.get(id).map(Bibliography::getEntries).orElse(List.of());
     }
 
-    @GetMapping("/{id}/entries/by-doi")
-    public BibEntry addByDoi(@PathVariable Long id, @RequestParam String doi) {
-        // pobieranie wpisu z Crossref po DOI
-        BibEntry entry = doiService.fetchByDoi(doi);
-        return service.addEntry(id, entry);
-    }
 
     @GetMapping("/{id}/bibtex")
     public String bibtex(@PathVariable Long id) {

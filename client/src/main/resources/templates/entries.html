@@ -34,31 +34,7 @@
         <label class="form-label">Autorzy</label>
         <input class="form-control" name="authors" required>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Rok</label>
-        <input type="number" class="form-control" name="year">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Journal</label>
-        <input class="form-control" name="journal">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">DOI</label>
-        <input class="form-control" name="doi">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Typ</label>
-        <input class="form-control" name="type" value="article">
-    </div>
     <button class="btn btn-success">Dodaj</button>
-</form>
-<h2>Dodaj po DOI</h2>
-<form method="post" th:action="@{'/bibliography/' + ${bibliography.id} + '/entries/by-doi'}">
-    <div class="mb-3">
-        <label class="form-label">DOI</label>
-        <input class="form-control" name="doi" required>
-    </div>
-    <button class="btn btn-secondary">Pobierz</button>
 </form>
 <p><a th:href="@{/bibliography}" class="btn btn-link">Powrót</a></p>
 </body>

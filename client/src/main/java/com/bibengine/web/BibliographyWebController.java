@@ -116,10 +116,6 @@ public class BibliographyWebController {
     public String addEntry(@PathVariable Long id,
                            @RequestParam String title,
                            @RequestParam String authors,
-                           @RequestParam(required = false) Integer year,
-                           @RequestParam(required = false) String journal,
-                           @RequestParam(required = false) String doi,
-                           @RequestParam(required = false) String type,
                            HttpSession session,
                            org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
         if (session.getAttribute("token") == null) {
@@ -128,10 +124,6 @@ public class BibliographyWebController {
         Map<String, Object> body = new HashMap<>();
         body.put("title", title);
         body.put("authors", authors);
-        body.put("year", year);
-        body.put("journal", journal);
-        body.put("doi", doi);
-        body.put("type", type);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, authHeaders(session));
         try {
             rest.exchange("http://localhost:5100/api/bibliography/" + id + "/entries",
@@ -142,24 +134,4 @@ public class BibliographyWebController {
         return "redirect:/bibliography/" + id;
     }
 
-    // Dodawanie wpisu po DOI
-    @PostMapping("/{id}/entries/by-doi")
-    public String addByDoi(@PathVariable Long id,
-                           @RequestParam String doi,
-                           HttpSession session,
-                           org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
-        if (session.getAttribute("token") == null) {
-            return "redirect:/login";
-        }
-        try {
-            rest.exchange(
-                    "http://localhost:5100/api/bibliography/" + id + "/entries/by-doi?doi=" + doi,
-                    HttpMethod.GET,
-                    authEntity(session),
-                    BibEntryDto.class);
-        } catch (Exception ex) {
-            ra.addFlashAttribute("error", "Nie udało się pobrać wpisu z DOI");
-        }
-        return "redirect:/bibliography/" + id;
-    }
 }

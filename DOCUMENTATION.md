@@ -19,7 +19,6 @@ mvn spring-boot:run -pl client
 - Rejestracja: `POST /api/auth/register`
 - Logowanie: `POST /api/auth/login` zwraca JWT
 - Moje bibliografie: `GET /api/bibliography` z nagłówkiem `Authorization: Bearer TOKEN`
-- Dodanie wpisu po DOI: `GET /api/bibliography/{id}/entries/by-doi?doi=...`
 
 ### Architektura
 Serwer `server` udostępnia REST API na porcie 5100, klient `client` korzysta z Thymeleaf na porcie 5200.
