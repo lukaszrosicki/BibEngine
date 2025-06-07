@@ -23,6 +23,8 @@ public class BibliographyWebController {
 
     private HttpHeaders authHeaders(HttpSession session) {
         HttpHeaders headers = new HttpHeaders();
+        // wysyłamy dane w formacie JSON
+        headers.setContentType(MediaType.APPLICATION_JSON);
         Object token = session.getAttribute("token");
         if (token != null) {
             headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
@@ -118,7 +120,8 @@ public class BibliographyWebController {
                            @RequestParam(required = false) String journal,
                            @RequestParam(required = false) String doi,
                            @RequestParam(required = false) String type,
-                           HttpSession session) {
+                           HttpSession session,
+                           org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
         if (session.getAttribute("token") == null) {
             return "redirect:/login";
         }
@@ -133,7 +136,9 @@ public class BibliographyWebController {
         try {
             rest.exchange("http://localhost:5100/api/bibliography/" + id + "/entries",
                     HttpMethod.POST, entity, BibEntryDto.class);
-        } catch (Exception ignored) {}
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error", "Nie udało się dodać wpisu");
+        }
         return "redirect:/bibliography/" + id;
     }
 
@@ -141,7 +146,8 @@ public class BibliographyWebController {
     @PostMapping("/{id}/entries/by-doi")
     public String addByDoi(@PathVariable Long id,
                            @RequestParam String doi,
-                           HttpSession session) {
+                           HttpSession session,
+                           org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
         if (session.getAttribute("token") == null) {
             return "redirect:/login";
         }
@@ -151,7 +157,9 @@ public class BibliographyWebController {
                     HttpMethod.GET,
                     authEntity(session),
                     BibEntryDto.class);
-        } catch (Exception ignored) {}
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error", "Nie udało się pobrać wpisu z DOI");
+        }
         return "redirect:/bibliography/" + id;
     }
 }
