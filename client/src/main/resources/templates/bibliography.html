@@ -5,9 +5,11 @@
     <title>Moje bibliografie - BibEngine</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
 </head>
-<body class="container">
+<body>
+<div class="d-flex">
+    <div th:replace="fragments/sidebar.html :: sidebar"></div>
+    <div class="container">
 <h1>Moje bibliografie</h1>
-<p><a th:href="@{/account}" class="btn btn-link">Moje konto</a></p>
 <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
 <table class="table">
     <thead>
@@ -31,7 +33,9 @@
         <label class="form-label">Notatka</label>
         <input class="form-control" name="comment">
     </div>
-    <button class="btn btn-success">Dodaj</button>
+<button class="btn btn-success">Dodaj</button>
 </form>
+    </div>
+</div>
 </body>
 </html>

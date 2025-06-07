@@ -25,6 +25,9 @@ public class BibEntry {
 
     private String type; // np. article, book itd.
 
+    /** Nazwa wpisu w pliku BibTeX */
+    private String bibtexKey;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Bibliography bibliography;
@@ -42,6 +45,8 @@ public class BibEntry {
     public void setDoi(String doi) { this.doi = doi; }
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+    public String getBibtexKey() { return bibtexKey; }
+    public void setBibtexKey(String bibtexKey) { this.bibtexKey = bibtexKey; }
     public Bibliography getBibliography() { return bibliography; }
     public void setBibliography(Bibliography bibliography) { this.bibliography = bibliography; }
 }

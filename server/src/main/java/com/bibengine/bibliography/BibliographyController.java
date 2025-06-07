@@ -2,6 +2,8 @@ package com.bibengine.bibliography;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -10,14 +12,12 @@ import java.util.List;
 @RequestMapping("/api/bibliography")
 public class BibliographyController {
     private final BibliographyService service;
-    private final DoiService doiService;
     private final BibTexService bibTexService;
     private final LaTeXService laTeXService;
 
-    public BibliographyController(BibliographyService service, DoiService doiService,
+    public BibliographyController(BibliographyService service,
                                  BibTexService bibTexService, LaTeXService laTeXService) {
         this.service = service;
-        this.doiService = doiService;
         this.bibTexService = bibTexService;
         this.laTeXService = laTeXService;
     }
@@ -40,17 +40,51 @@ public class BibliographyController {
         return service.addEntry(id, entry);
     }
 
+    /** Aktualizacja wpisu */
+    @PutMapping("/{bibId}/entries/{entryId}")
+    public BibEntry updateEntry(@PathVariable Long bibId, @PathVariable Long entryId,
+                                @RequestBody BibEntry entry) {
+        return service.updateEntry(bibId, entryId, entry);
+    }
+
+    /** Usuwanie wpisu */
+    @DeleteMapping("/{bibId}/entries/{entryId}")
+    public void deleteEntry(@PathVariable Long bibId, @PathVariable Long entryId) {
+        service.deleteEntry(bibId, entryId);
+    }
+
+    /** Dodawanie wielu wpisów z pliku BibTeX */
+    @PostMapping(path = "/{id}/entries/bibtex", consumes = "text/plain")
+    public List<BibEntry> addFromBibtex(@PathVariable Long id, @RequestBody String text) {
+        var entries = bibTexService.fromBibtex(text);
+        return service.addEntries(id, entries);
+    }
+
+    /** Dodawanie wielu wpisów z przesłanego pliku BibTeX */
+    @PostMapping(path = "/{id}/entries/bibtex-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public List<BibEntry> addFromBibtexFile(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        try {
+            String text = new String(file.getBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            var entries = bibTexService.fromBibtex(text);
+            return service.addEntries(id, entries);
+        } catch (java.io.IOException ex) {
+            throw new IllegalArgumentException("Nie udało się odczytać pliku");
+        }
+    }
+
     @GetMapping("/{id}/entries")
     public List<BibEntry> listEntries(@PathVariable Long id) {
         return service.get(id).map(Bibliography::getEntries).orElse(List.of());
     }
 
-    @GetMapping("/{id}/entries/by-doi")
-    public BibEntry addByDoi(@PathVariable Long id, @RequestParam String doi) {
-        // pobieranie wpisu z Crossref po DOI
-        BibEntry entry = doiService.fetchByDoi(doi);
-        return service.addEntry(id, entry);
+    /** Pojedynczy wpis */
+    @GetMapping("/{bibId}/entries/{entryId}")
+    public BibEntry getEntry(@PathVariable Long bibId, @PathVariable Long entryId) {
+        return service.get(bibId)
+                .flatMap(b -> b.getEntries().stream().filter(e -> e.getId().equals(entryId)).findFirst())
+                .orElseThrow();
     }
+
 
     @GetMapping("/{id}/bibtex")
     public String bibtex(@PathVariable Long id) {
