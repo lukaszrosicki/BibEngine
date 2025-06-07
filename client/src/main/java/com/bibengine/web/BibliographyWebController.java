@@ -8,6 +8,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.*;
 
@@ -168,6 +172,34 @@ public class BibliographyWebController {
                     HttpMethod.POST, entity, BibEntryDto[].class);
         } catch (Exception ex) {
             ra.addFlashAttribute("error", "Nie udało się wgrać danych");
+        }
+        return "redirect:/bibliography/" + id;
+    }
+
+    // Wgrywanie wpisów z pliku BibTeX
+    @PostMapping("/{id}/entries/upload-file")
+    public String uploadBibtexFile(@PathVariable Long id,
+                                   @RequestParam("file") MultipartFile file,
+                                   HttpSession session,
+                                   org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
+        if (session.getAttribute("token") == null) {
+            return "redirect:/login";
+        }
+        try {
+            ByteArrayResource resource =
+                    new ByteArrayResource(file.getBytes()) {
+                        @Override
+                        public String getFilename() { return file.getOriginalFilename(); }
+                    };
+            LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("file", resource);
+            HttpHeaders headers = authHeaders(session, MediaType.MULTIPART_FORM_DATA);
+            HttpEntity<MultiValueMap<String, Object>> entity =
+                    new HttpEntity<>(body, headers);
+            rest.exchange("http://localhost:5100/api/bibliography/" + id + "/entries/bibtex-file",
+                    HttpMethod.POST, entity, BibEntryDto[].class);
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error", "Nie udało się wgrać pliku");
         }
         return "redirect:/bibliography/" + id;
     }

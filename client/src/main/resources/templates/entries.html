@@ -12,19 +12,18 @@
 <h1 th:text="${bibliography.name}">Bibliografia</h1>
 <p th:text="${bibliography.comment}"></p>
 <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+<form method="post" th:action="@{'/bibliography/' + ${bibliography.id} + '/entries'}">
 <table class="table">
     <thead>
     <tr><th>Tytuł</th><th>Autorzy</th><th>Rok</th><th>Journal</th><th>DOI</th><th>BibKey</th><th></th></tr>
     <tr>
-        <form method="post" th:action="@{'/bibliography/' + ${bibliography.id} + '/entries'}">
-            <td><input class="form-control" name="title" required></td>
-            <td><input class="form-control" name="authors" required></td>
-            <td><input type="number" class="form-control" name="year"></td>
-            <td><input class="form-control" name="journal"></td>
-            <td><input class="form-control" name="doi"></td>
-            <td><input class="form-control" name="type" value="article"></td>
-            <td><button class="btn btn-success btn-sm">Dodaj</button></td>
-        </form>
+        <td><input class="form-control" name="title" required></td>
+        <td><input class="form-control" name="authors" required></td>
+        <td><input type="number" class="form-control" name="year"></td>
+        <td><input class="form-control" name="journal"></td>
+        <td><input class="form-control" name="doi"></td>
+        <td><input class="form-control" name="type" value="article"></td>
+        <td><button class="btn btn-success btn-sm">Dodaj</button></td>
     </tr>
     </thead>
     <tbody>
@@ -44,6 +43,7 @@
     </tr>
     </tbody>
 </table>
+</form>
 <div th:if="${missing != null and !#lists.isEmpty(missing)}" class="mt-3">
     <h3>Brak wymaganych danych</h3>
     <table class="table table-sm">
@@ -62,6 +62,13 @@
         <textarea class="form-control" name="bibtex" rows="6" required></textarea>
     </div>
     <button class="btn btn-secondary">Wgraj</button>
+</form>
+<h2>Dodaj z pliku BibTeX</h2>
+<form method="post" th:action="@{'/bibliography/' + ${bibliography.id} + '/entries/upload-file'}" enctype="multipart/form-data">
+    <div class="mb-3">
+        <input type="file" name="file" accept=".bib" class="form-control" required>
+    </div>
+    <button class="btn btn-secondary">Wgraj plik</button>
 </form>
 <p><a th:href="@{/bibliography}" class="btn btn-link">Powrót</a></p>
     </div>

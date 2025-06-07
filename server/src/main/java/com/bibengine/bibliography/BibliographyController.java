@@ -2,6 +2,8 @@ package com.bibengine.bibliography;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -56,6 +58,18 @@ public class BibliographyController {
     public List<BibEntry> addFromBibtex(@PathVariable Long id, @RequestBody String text) {
         var entries = bibTexService.fromBibtex(text);
         return service.addEntries(id, entries);
+    }
+
+    /** Dodawanie wielu wpisów z przesłanego pliku BibTeX */
+    @PostMapping(path = "/{id}/entries/bibtex-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public List<BibEntry> addFromBibtexFile(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        try {
+            String text = new String(file.getBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            var entries = bibTexService.fromBibtex(text);
+            return service.addEntries(id, entries);
+        } catch (java.io.IOException ex) {
+            throw new IllegalArgumentException("Nie udało się odczytać pliku");
+        }
     }
 
     @GetMapping("/{id}/entries")
