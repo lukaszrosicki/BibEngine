@@ -1,5 +1,6 @@
 package com.bibengine.bibliography;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 /**
@@ -25,6 +26,7 @@ public class BibEntry {
     private String type; // np. article, book itd.
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Bibliography bibliography;
 
     public Long getId() { return id; }

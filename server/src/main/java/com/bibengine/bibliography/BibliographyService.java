@@ -27,7 +27,13 @@ public class BibliographyService {
         return bibliographyRepository.findByOwner(user);
     }
 
-    public Optional<Bibliography> get(Long id) { return bibliographyRepository.findById(id); }
+    @Transactional(readOnly = true)
+    public Optional<Bibliography> get(Long id) {
+        return bibliographyRepository.findById(id).map(b -> {
+            b.getEntries().size(); // inicjalizacja wpisów w ramach transakcji
+            return b;
+        });
+    }
 
     @Transactional
     public Bibliography create(String username, Bibliography b) {
@@ -45,6 +51,7 @@ public class BibliographyService {
                 .stream().filter(e -> e.getBibliography().getOwner().equals(user)).toList();
     }
 
+    @Transactional
     public BibEntry addEntry(Long bibliographyId, BibEntry entry) {
         Bibliography b = bibliographyRepository.findById(bibliographyId).orElseThrow();
         entry.setBibliography(b);

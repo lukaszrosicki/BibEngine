@@ -1,6 +1,7 @@
 package com.bibengine.bibliography;
 
 import com.bibengine.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +18,11 @@ public class Bibliography {
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User owner;
 
     @OneToMany(mappedBy = "bibliography", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<BibEntry> entries = new ArrayList<>();
 
     public Long getId() { return id; }
