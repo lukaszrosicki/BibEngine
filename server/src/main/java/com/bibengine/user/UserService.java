@@ -17,6 +17,9 @@ public class UserService {
         if (password.length() < 7) {
             throw new IllegalArgumentException("Hasło musi mieć min 7 znaków");
         }
+        if (userRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("Użytkownik o tym loginie już istnieje");
+        }
         User user = new User();
         user.setUsername(username);
         user.setEmail(email);

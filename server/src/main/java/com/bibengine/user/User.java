@@ -3,6 +3,7 @@ package com.bibengine.user;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "users") // nazwa tabeli "user" koliduje w H2 z slowem kluczowym
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

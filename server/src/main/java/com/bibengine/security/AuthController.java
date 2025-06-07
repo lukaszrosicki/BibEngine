@@ -19,12 +19,17 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         // prosta walidacja maila
         if (!request.email().contains("@")) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", "Niepoprawny email"));
         }
-        return ResponseEntity.ok(userService.register(request.username(), request.email(), request.password()));
+        try {
+            User user = userService.register(request.username(), request.email(), request.password());
+            return ResponseEntity.ok(user);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        }
     }
 
     @PostMapping("/login")
