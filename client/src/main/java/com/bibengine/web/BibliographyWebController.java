@@ -152,23 +152,22 @@ public class BibliographyWebController {
         return "redirect:/bibliography/" + id;
     }
 
-    // Wgrywanie wpisów z pliku BibTeX
+    // Wgrywanie wpisów z tekstu BibTeX
     @PostMapping("/{id}/entries/upload")
     public String uploadBibtex(@PathVariable Long id,
-                               @RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+                               @RequestParam("bibtex") String bibtex,
                                HttpSession session,
                                org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
         if (session.getAttribute("token") == null) {
             return "redirect:/login";
         }
         try {
-            String content = new String(file.getBytes(), java.nio.charset.StandardCharsets.UTF_8);
             HttpHeaders headers = authHeaders(session, MediaType.TEXT_PLAIN);
-            HttpEntity<String> entity = new HttpEntity<>(content, headers);
+            HttpEntity<String> entity = new HttpEntity<>(bibtex, headers);
             rest.exchange("http://localhost:5100/api/bibliography/" + id + "/entries/bibtex",
                     HttpMethod.POST, entity, BibEntryDto[].class);
         } catch (Exception ex) {
-            ra.addFlashAttribute("error", "Nie udało się wgrać pliku");
+            ra.addFlashAttribute("error", "Nie udało się wgrać danych");
         }
         return "redirect:/bibliography/" + id;
     }
