@@ -44,6 +44,10 @@ public class BibliographyService {
 
     public void delete(Long id) { bibliographyRepository.deleteById(id); }
 
+    public int countEntries(Long bibliographyId) {
+        return (int) bibEntryRepository.countByBibliographyId(bibliographyId);
+    }
+
     public List<BibEntry> searchEntries(String username, String q) {
         // wyszukujemy wpisy użytkownika po tytule lub autorze
         User user = userRepository.findByUsername(username);

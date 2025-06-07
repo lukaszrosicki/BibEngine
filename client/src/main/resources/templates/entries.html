@@ -13,9 +13,10 @@
 <p th:text="${bibliography.comment}"></p>
 <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
 <form method="post" th:action="@{'/bibliography/' + ${bibliography.id} + '/entries'}">
-<table class="table">
+<input id="search" class="form-control mb-2" placeholder="Szukaj...">
+<table class="table" id="entriesTable">
     <thead>
-    <tr><th>Tytuł</th><th>Autorzy</th><th>Rok</th><th>Journal</th><th>DOI</th><th>BibKey</th><th></th></tr>
+    <tr><th class="sortable">Tytuł</th><th class="sortable">Autorzy</th><th class="sortable">Rok</th><th class="sortable">Journal</th><th class="sortable">DOI</th><th class="sortable">BibKey</th><th></th></tr>
     <tr>
         <td><input class="form-control" name="title" required></td>
         <td><input class="form-control" name="authors" required></td>
@@ -73,5 +74,30 @@
 <p><a th:href="@{/bibliography}" class="btn btn-link">Powrót</a></p>
     </div>
 </div>
+<script>
+    function sortTable(table, col, asc) {
+        const tbody = table.tBodies[0];
+        Array.from(tbody.querySelectorAll('tr'))
+            .sort((a,b)=>{
+                const t1=a.children[col].textContent.trim();
+                const t2=b.children[col].textContent.trim();
+                return asc ? t1.localeCompare(t2,'pl',{numeric:true}) : t2.localeCompare(t1,'pl',{numeric:true});
+            })
+            .forEach(tr=>tbody.appendChild(tr));
+    }
+    document.querySelectorAll('#entriesTable th.sortable').forEach((th,i)=>{
+        th.addEventListener('click',()=>{
+            const asc=!th.classList.toggle('asc');
+            sortTable(th.closest('table'),i,asc);
+        });
+    });
+    document.getElementById('search').addEventListener('input',e=>{
+        const q=e.target.value.toLowerCase();
+        document.querySelectorAll('#entriesTable tbody tr').forEach(tr=>{
+            const text=tr.textContent.toLowerCase();
+            tr.style.display=text.includes(q)?'':'none';
+        });
+    });
+</script>
 </body>
 </html>

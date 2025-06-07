@@ -11,14 +11,16 @@
     <div class="container">
 <h1>Moje bibliografie</h1>
 <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
-<table class="table">
+<input id="search" class="form-control mb-2" placeholder="Szukaj...">
+<table class="table" id="bibTable">
     <thead>
-    <tr><th>Nazwa</th><th>Notatka</th><th></th></tr>
+    <tr><th class="sortable">Nazwa</th><th class="sortable">Notatka</th><th class="sortable">Liczba wpisów</th><th></th></tr>
     </thead>
     <tbody>
     <tr th:each="b : ${bibliographies}">
         <td th:text="${b.name}"></td>
         <td th:text="${b.comment}"></td>
+        <td th:text="${b.entryCount}"></td>
         <td><a th:href="@{'/bibliography/' + ${b.id}}" class="btn btn-sm btn-primary">Wpisy</a></td>
     </tr>
     </tbody>
@@ -37,5 +39,30 @@
 </form>
     </div>
 </div>
+<script>
+    function sortTable(table, col, asc) {
+        const tbody = table.tBodies[0];
+        Array.from(tbody.querySelectorAll('tr'))
+            .sort((a,b)=>{
+                const t1=a.children[col].textContent.trim();
+                const t2=b.children[col].textContent.trim();
+                return asc ? t1.localeCompare(t2,'pl',{numeric:true}) : t2.localeCompare(t1,'pl',{numeric:true});
+            })
+            .forEach(tr=>tbody.appendChild(tr));
+    }
+    document.querySelectorAll('#bibTable th.sortable').forEach((th,i)=>{
+        th.addEventListener('click',()=>{
+            const asc=!th.classList.toggle('asc');
+            sortTable(th.closest('table'),i,asc);
+        });
+    });
+    document.getElementById('search').addEventListener('input',e=>{
+        const q=e.target.value.toLowerCase();
+        document.querySelectorAll('#bibTable tbody tr').forEach(tr=>{
+            const text=tr.textContent.toLowerCase();
+            tr.style.display=text.includes(q)?'':'none';
+        });
+    });
+</script>
 </body>
 </html>

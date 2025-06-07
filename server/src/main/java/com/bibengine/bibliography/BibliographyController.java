@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 /** Kontroler REST do zarządzania bazami bibliograficznymi */
 @RestController
@@ -23,8 +24,12 @@ public class BibliographyController {
     }
 
     @GetMapping
-    public List<Bibliography> myBibliographies(Authentication auth) {
-        return service.forUser(auth.getName());
+    public List<BibliographyDto> myBibliographies(Authentication auth) {
+        return service.forUser(auth.getName()).stream()
+                .map(b -> new BibliographyDto(
+                        b.getId(), b.getName(), b.getComment(),
+                        service.countEntries(b.getId())))
+                .toList();
     }
 
     @PostMapping
@@ -64,7 +69,11 @@ public class BibliographyController {
     @PostMapping(path = "/{id}/entries/bibtex-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public List<BibEntry> addFromBibtexFile(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         try {
-            String text = new String(file.getBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            byte[] bytes = file.getBytes();
+            String text = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+            if (text.contains("�")) {
+                text = new String(bytes, java.nio.charset.Charset.forName("windows-1250"));
+            }
             var entries = bibTexService.fromBibtex(text);
             return service.addEntries(id, entries);
         } catch (java.io.IOException ex) {
@@ -97,6 +106,24 @@ public class BibliographyController {
     public String latex(@PathVariable Long id) {
         return service.get(id).map(b -> laTeXService.generateTheBibliography(b.getEntries()))
                 .orElse("");
+    }
+
+    /** Czyszczenie przesłanego pliku BibTeX i generowanie thebibliography */
+    @PostMapping(path = "/clean", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public java.util.Map<String, String> cleanBibtex(@RequestParam("file") MultipartFile file) {
+        try {
+            byte[] bytes = file.getBytes();
+            String text = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+            if (text.contains("�")) {
+                text = new String(bytes, java.nio.charset.Charset.forName("windows-1250"));
+            }
+            var entries = bibTexService.fromBibtex(text);
+            String cleaned = entries.stream().map(bibTexService::toBibtex).reduce("", String::concat);
+            String latex = laTeXService.generateTheBibliography(entries);
+            return java.util.Map.of("bibtex", cleaned, "latex", latex);
+        } catch (java.io.IOException ex) {
+            throw new IllegalArgumentException("Nie udało się odczytać pliku");
+        }
     }
 
     @GetMapping("/entries/search")
