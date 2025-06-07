@@ -12,7 +12,7 @@
 <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
 <table class="table">
     <thead>
-    <tr><th>Tytuł</th><th>Autorzy</th><th>Rok</th><th>Journal</th><th>DOI</th></tr>
+    <tr><th>Tytuł</th><th>Autorzy</th><th>Rok</th><th>Journal</th><th>DOI</th><th>BibKey</th></tr>
     </thead>
     <tbody>
     <tr th:each="e : ${entries}">
@@ -21,6 +21,7 @@
         <td th:text="${e.year}"></td>
         <td th:text="${e.journal}"></td>
         <td th:text="${e.doi}"></td>
+        <td th:text="${e.bibtexKey}"></td>
     </tr>
     </tbody>
 </table>
@@ -34,7 +35,30 @@
         <label class="form-label">Autorzy</label>
         <input class="form-control" name="authors" required>
     </div>
+    <div class="mb-3">
+        <label class="form-label">Rok</label>
+        <input type="number" class="form-control" name="year">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Journal</label>
+        <input class="form-control" name="journal">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">DOI</label>
+        <input class="form-control" name="doi">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Typ</label>
+        <input class="form-control" name="type" value="article">
+    </div>
     <button class="btn btn-success">Dodaj</button>
+</form>
+<h2>Dodaj z pliku BibTeX</h2>
+<form method="post" th:action="@{'/bibliography/' + ${bibliography.id} + '/entries/upload'}" enctype="multipart/form-data">
+    <div class="mb-3">
+        <input type="file" class="form-control" name="file" accept=".bib" required>
+    </div>
+    <button class="btn btn-secondary">Wgraj</button>
 </form>
 <p><a th:href="@{/bibliography}" class="btn btn-link">Powrót</a></p>
 </body>

@@ -22,9 +22,12 @@ public class BibliographyWebController {
     private final RestTemplate rest = new RestTemplate();
 
     private HttpHeaders authHeaders(HttpSession session) {
+        return authHeaders(session, MediaType.APPLICATION_JSON);
+    }
+
+    private HttpHeaders authHeaders(HttpSession session, MediaType type) {
         HttpHeaders headers = new HttpHeaders();
-        // wysyłamy dane w formacie JSON
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setContentType(type);
         Object token = session.getAttribute("token");
         if (token != null) {
             headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
@@ -116,6 +119,10 @@ public class BibliographyWebController {
     public String addEntry(@PathVariable Long id,
                            @RequestParam String title,
                            @RequestParam String authors,
+                           @RequestParam(required = false) Integer year,
+                           @RequestParam(required = false) String journal,
+                           @RequestParam(required = false) String doi,
+                           @RequestParam(required = false) String type,
                            HttpSession session,
                            org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
         if (session.getAttribute("token") == null) {
@@ -124,12 +131,37 @@ public class BibliographyWebController {
         Map<String, Object> body = new HashMap<>();
         body.put("title", title);
         body.put("authors", authors);
+        body.put("year", year);
+        body.put("journal", journal);
+        body.put("doi", doi);
+        body.put("type", type);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, authHeaders(session));
         try {
             rest.exchange("http://localhost:5100/api/bibliography/" + id + "/entries",
                     HttpMethod.POST, entity, BibEntryDto.class);
         } catch (Exception ex) {
             ra.addFlashAttribute("error", "Nie udało się dodać wpisu");
+        }
+        return "redirect:/bibliography/" + id;
+    }
+
+    // Wgrywanie wpisów z pliku BibTeX
+    @PostMapping("/{id}/entries/upload")
+    public String uploadBibtex(@PathVariable Long id,
+                               @RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+                               HttpSession session,
+                               org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
+        if (session.getAttribute("token") == null) {
+            return "redirect:/login";
+        }
+        try {
+            String content = new String(file.getBytes());
+            HttpHeaders headers = authHeaders(session, MediaType.TEXT_PLAIN);
+            HttpEntity<String> entity = new HttpEntity<>(content, headers);
+            rest.exchange("http://localhost:5100/api/bibliography/" + id + "/entries/bibtex",
+                    HttpMethod.POST, entity, BibEntryDto[].class);
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error", "Nie udało się wgrać pliku");
         }
         return "redirect:/bibliography/" + id;
     }

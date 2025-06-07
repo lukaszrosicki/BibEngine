@@ -57,4 +57,12 @@ public class BibliographyService {
         entry.setBibliography(b);
         return bibEntryRepository.save(entry);
     }
+
+    /** Dodaje wiele wpisów jednocześnie */
+    @Transactional
+    public java.util.List<BibEntry> addEntries(Long bibliographyId, java.util.List<BibEntry> entries) {
+        Bibliography b = bibliographyRepository.findById(bibliographyId).orElseThrow();
+        for (BibEntry e : entries) { e.setBibliography(b); }
+        return bibEntryRepository.saveAll(entries);
+    }
 }

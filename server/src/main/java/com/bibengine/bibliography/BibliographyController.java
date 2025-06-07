@@ -38,6 +38,13 @@ public class BibliographyController {
         return service.addEntry(id, entry);
     }
 
+    /** Dodawanie wielu wpisów z pliku BibTeX */
+    @PostMapping(path = "/{id}/entries/bibtex", consumes = "text/plain")
+    public List<BibEntry> addFromBibtex(@PathVariable Long id, @RequestBody String text) {
+        var entries = bibTexService.fromBibtex(text);
+        return service.addEntries(id, entries);
+    }
+
     @GetMapping("/{id}/entries")
     public List<BibEntry> listEntries(@PathVariable Long id) {
         return service.get(id).map(Bibliography::getEntries).orElse(List.of());
