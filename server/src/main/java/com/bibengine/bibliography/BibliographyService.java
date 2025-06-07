@@ -58,6 +58,33 @@ public class BibliographyService {
         return bibEntryRepository.save(entry);
     }
 
+    /** Aktualizuje istniejący wpis */
+    @Transactional
+    public BibEntry updateEntry(Long bibliographyId, Long entryId, BibEntry data) {
+        BibEntry entry = bibEntryRepository.findById(entryId).orElseThrow();
+        if (!entry.getBibliography().getId().equals(bibliographyId)) {
+            throw new IllegalArgumentException("Entry does not belong to bibliography");
+        }
+        entry.setTitle(data.getTitle());
+        entry.setAuthors(data.getAuthors());
+        entry.setYear(data.getYear());
+        entry.setJournal(data.getJournal());
+        entry.setDoi(data.getDoi());
+        entry.setType(data.getType());
+        entry.setBibtexKey(data.getBibtexKey());
+        return bibEntryRepository.save(entry);
+    }
+
+    /** Usuwa wpis z bibliografii */
+    @Transactional
+    public void deleteEntry(Long bibliographyId, Long entryId) {
+        BibEntry entry = bibEntryRepository.findById(entryId).orElseThrow();
+        if (!entry.getBibliography().getId().equals(bibliographyId)) {
+            throw new IllegalArgumentException("Entry does not belong to bibliography");
+        }
+        bibEntryRepository.delete(entry);
+    }
+
     /** Dodaje wiele wpisów jednocześnie */
     @Transactional
     public java.util.List<BibEntry> addEntries(Long bibliographyId, java.util.List<BibEntry> entries) {

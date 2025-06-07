@@ -1,0 +1,12 @@
+<div th:fragment="sidebar">
+    <div class="d-flex flex-column p-3 bg-light" style="width:200px; min-height:100vh;">
+        <h5>BibEngine</h5>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item"><a th:href="@{/}" class="nav-link">Start</a></li>
+            <li><a th:href="@{/bibliography}" class="nav-link">Bibliografie</a></li>
+            <li><a th:href="@{/account}" class="nav-link">Konto</a></li>
+            <li><a th:href="@{/docs}" class="nav-link">Dokumentacja</a></li>
+            <li><a th:href="@{/regulamin}" class="nav-link">Regulamin</a></li>
+        </ul>
+    </div>
+</div>

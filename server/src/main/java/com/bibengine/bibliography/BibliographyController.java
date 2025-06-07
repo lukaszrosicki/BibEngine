@@ -38,6 +38,19 @@ public class BibliographyController {
         return service.addEntry(id, entry);
     }
 
+    /** Aktualizacja wpisu */
+    @PutMapping("/{bibId}/entries/{entryId}")
+    public BibEntry updateEntry(@PathVariable Long bibId, @PathVariable Long entryId,
+                                @RequestBody BibEntry entry) {
+        return service.updateEntry(bibId, entryId, entry);
+    }
+
+    /** Usuwanie wpisu */
+    @DeleteMapping("/{bibId}/entries/{entryId}")
+    public void deleteEntry(@PathVariable Long bibId, @PathVariable Long entryId) {
+        service.deleteEntry(bibId, entryId);
+    }
+
     /** Dodawanie wielu wpisów z pliku BibTeX */
     @PostMapping(path = "/{id}/entries/bibtex", consumes = "text/plain")
     public List<BibEntry> addFromBibtex(@PathVariable Long id, @RequestBody String text) {
@@ -48,6 +61,14 @@ public class BibliographyController {
     @GetMapping("/{id}/entries")
     public List<BibEntry> listEntries(@PathVariable Long id) {
         return service.get(id).map(Bibliography::getEntries).orElse(List.of());
+    }
+
+    /** Pojedynczy wpis */
+    @GetMapping("/{bibId}/entries/{entryId}")
+    public BibEntry getEntry(@PathVariable Long bibId, @PathVariable Long entryId) {
+        return service.get(bibId)
+                .flatMap(b -> b.getEntries().stream().filter(e -> e.getId().equals(entryId)).findFirst())
+                .orElseThrow();
     }
 
 

@@ -106,7 +106,14 @@ public class BibliographyWebController {
                     HttpMethod.GET,
                     authEntity(session),
                     BibEntryDto[].class);
-            model.addAttribute("entries", resp.getBody());
+            BibEntryDto[] arr = resp.getBody();
+            model.addAttribute("entries", arr);
+            if (arr != null) {
+                List<BibEntryDto> missing = Arrays.stream(arr)
+                        .filter(e -> e.title() == null || e.title().isBlank() || e.authors() == null || e.authors().isBlank())
+                        .toList();
+                model.addAttribute("missing", missing);
+            }
         } catch (Exception ex) {
             model.addAttribute("error", "Błąd pobierania danych");
         }
@@ -155,7 +162,7 @@ public class BibliographyWebController {
             return "redirect:/login";
         }
         try {
-            String content = new String(file.getBytes());
+            String content = new String(file.getBytes(), java.nio.charset.StandardCharsets.UTF_8);
             HttpHeaders headers = authHeaders(session, MediaType.TEXT_PLAIN);
             HttpEntity<String> entity = new HttpEntity<>(content, headers);
             rest.exchange("http://localhost:5100/api/bibliography/" + id + "/entries/bibtex",
@@ -164,6 +171,77 @@ public class BibliographyWebController {
             ra.addFlashAttribute("error", "Nie udało się wgrać pliku");
         }
         return "redirect:/bibliography/" + id;
+    }
+
+    // Formularz edycji wpisu
+    @GetMapping("/{bibId}/entries/{entryId}/edit")
+    public String editEntryForm(@PathVariable Long bibId, @PathVariable Long entryId, Model model, HttpSession session) {
+        if (session.getAttribute("token") == null) {
+            return "redirect:/login";
+        }
+        try {
+            ResponseEntity<BibEntryDto> resp = rest.exchange(
+                    "http://localhost:5100/api/bibliography/" + bibId + "/entries/" + entryId,
+                    HttpMethod.GET,
+                    authEntity(session),
+                    BibEntryDto.class);
+            model.addAttribute("entry", resp.getBody());
+            model.addAttribute("bibId", bibId);
+        } catch (Exception ex) {
+            model.addAttribute("error", "Nie udało się pobrać wpisu");
+        }
+        return "edit-entry";
+    }
+
+
+    // Aktualizacja wpisu
+    @PostMapping("/{bibId}/entries/{entryId}")
+    public String updateEntry(@PathVariable Long bibId,
+                              @PathVariable Long entryId,
+                              @RequestParam String title,
+                              @RequestParam String authors,
+                              @RequestParam(required = false) Integer year,
+                              @RequestParam(required = false) String journal,
+                              @RequestParam(required = false) String doi,
+                              @RequestParam(required = false) String type,
+                              HttpSession session,
+                              org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
+        if (session.getAttribute("token") == null) {
+            return "redirect:/login";
+        }
+        Map<String, Object> body = new HashMap<>();
+        body.put("title", title);
+        body.put("authors", authors);
+        body.put("year", year);
+        body.put("journal", journal);
+        body.put("doi", doi);
+        body.put("type", type);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, authHeaders(session));
+        try {
+            rest.exchange("http://localhost:5100/api/bibliography/" + bibId + "/entries/" + entryId,
+                    HttpMethod.PUT, entity, BibEntryDto.class);
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error", "Nie udało się zaktualizować wpisu");
+        }
+        return "redirect:/bibliography/" + bibId;
+    }
+
+    // Usuwanie wpisu
+    @PostMapping("/{bibId}/entries/{entryId}/delete")
+    public String deleteEntry(@PathVariable Long bibId,
+                              @PathVariable Long entryId,
+                              HttpSession session,
+                              org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
+        if (session.getAttribute("token") == null) {
+            return "redirect:/login";
+        }
+        try {
+            rest.exchange("http://localhost:5100/api/bibliography/" + bibId + "/entries/" + entryId,
+                    HttpMethod.DELETE, authEntity(session), Void.class);
+        } catch (Exception ex) {
+            ra.addFlashAttribute("error", "Nie udało się usunąć wpisu");
+        }
+        return "redirect:/bibliography/" + bibId;
     }
 
 }
