@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Moje bibliografie - BibEngine</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+</head>
+<body class="container">
+<h1>Moje bibliografie</h1>
+<div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+<table class="table">
+    <thead>
+    <tr><th>Nazwa</th><th>Notatka</th><th></th></tr>
+    </thead>
+    <tbody>
+    <tr th:each="b : ${bibliographies}">
+        <td th:text="${b.name}"></td>
+        <td th:text="${b.comment}"></td>
+        <td><a th:href="@{'/bibliography/' + ${b.id}}" class="btn btn-sm btn-primary">Wpisy</a></td>
+    </tr>
+    </tbody>
+</table>
+<h2>Nowa bibliografia</h2>
+<form method="post" th:action="@{/bibliography}">
+    <div class="mb-3">
+        <label class="form-label">Nazwa</label>
+        <input class="form-control" name="name" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Notatka</label>
+        <input class="form-control" name="comment">
+    </div>
+    <button class="btn btn-success">Dodaj</button>
+</form>
+</body>
+</html>

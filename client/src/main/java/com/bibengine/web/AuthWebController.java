@@ -36,7 +36,7 @@ public class AuthWebController {
             );
             if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
                 session.setAttribute("token", resp.getBody().get("token"));
-                return "redirect:/";
+                return "redirect:/bibliography";
             }
         } catch (RestClientException ex) {
             // ignorujemy szczegóły i wyświetlamy prosty komunikat
